@@ -386,7 +386,7 @@ function renderItems() {
     html += `</div></div>`;
   });
   if (!html) html = `<p class="empty-msg">"${q}" 검색 결과가 없습니다.</p>`;
-  area.innerHTML = html;
+  area.innerHTML = html + `<div style="height:200px"></div>`;
   updateCount();
 }
 
