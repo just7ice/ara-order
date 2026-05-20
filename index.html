@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>아라유통 발주</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+:root {
+  --bg: #f4f4f2;
+  --surface: #ffffff;
+  --border: #e8e8e6;
+  --text: #1a1a1a;
+  --text2: #888;
+  --text3: #bbb;
+  --accent: #1a1a1a;
+  --accent-text: #fff;
+  --selected-bg: #f0f0ee;
+  --tab-h: 52px;
+  --bottom-h: 76px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+  background: var(--bg); color: var(--text);
+  padding-bottom: calc(var(--bottom-h) + 48px);
+}
+
+/* ── HEADER ── */
+.app-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 16px 0;
+  position: sticky; top: 0; z-index: 100;
+}
+.header-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.app-title { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+.branch-wrap {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg); border-radius: 10px;
+  padding: 8px 12px; margin-bottom: 12px;
+}
+.branch-wrap i { font-size: 16px; color: var(--text2); flex-shrink: 0; }
+.branch-wrap input {
+  border: none; background: transparent; font-size: 14px;
+  color: var(--text); outline: none; width: 100%;
+}
+.branch-wrap input::placeholder { color: var(--text3); }
+
+/* ── SEARCH ── */
+.search-wrap {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg); border-radius: 10px;
+  padding: 9px 12px; margin-bottom: 12px;
+}
+.search-wrap i { font-size: 17px; color: var(--text2); flex-shrink: 0; }
+.search-wrap input {
+  border: none; background: transparent; font-size: 15px;
+  color: var(--text); outline: none; width: 100%;
+}
+.search-wrap input::placeholder { color: var(--text3); }
+.search-clear { font-size: 16px; color: var(--text3); cursor: pointer; display: none; }
+
+/* ── CATEGORY TABS ── */
+.cat-tabs {
+  display: flex; gap: 4px;
+  overflow-x: auto; padding-bottom: 12px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.cat-tabs::-webkit-scrollbar { display: none; }
+.cat-tab {
+  flex-shrink: 0; font-size: 13px; font-weight: 500;
+  padding: 6px 14px; border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: transparent; color: var(--text2);
+  cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.cat-tab.active {
+  background: var(--accent); color: var(--accent-text);
+  border-color: var(--accent);
+}
+
+/* ── CONTENT ── */
+.content { padding: 12px 12px 0; }
+
+.section { margin-bottom: 20px; }
+.section-label {
+  font-size: 11px; font-weight: 700; color: var(--text2);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  margin-bottom: 8px; padding-left: 2px;
+}
+
+.items-list { display: flex; flex-direction: column; gap: 1px; border-radius: 12px; overflow: hidden; }
+
+.item-block { background: var(--surface); }
+.item-block:first-child { border-radius: 12px 12px 0 0; }
+.item-block:last-child { border-radius: 0 0 12px 12px; }
+.item-block:only-child { border-radius: 12px; }
+
+.item-row {
+  display: flex; align-items: center;
+  padding: 14px 14px;
+  min-height: 56px;
+  cursor: pointer; transition: background 0.1s;
+  gap: 12px;
+}
+.item-row:active { background: var(--selected-bg); }
+
+.item-check {
+  width: 22px; height: 22px; border-radius: 6px;
+  border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all 0.15s;
+}
+.item-block.selected .item-check {
+  background: var(--accent); border-color: var(--accent);
+}
+.item-check i { font-size: 13px; color: #fff; display: none; }
+.item-block.selected .item-check i { display: block; }
+
+.item-info { flex: 1; }
+.item-name { font-size: 15px; color: var(--text); line-height: 1.3; }
+.item-unit { font-size: 12px; color: var(--text3); margin-top: 1px; }
+
+.item-qty-badge {
+  font-size: 13px; font-weight: 700;
+  color: var(--accent); min-width: 28px; text-align: right;
+  display: none;
+}
+.item-block.selected .item-qty-badge { display: block; }
+
+/* ── QTY STEPPER (expanded) ── */
+.qty-panel {
+  display: none;
+  padding: 0 14px 14px;
+  border-top: 1px solid var(--border);
+}
+.item-block.selected .qty-panel { display: block; }
+
+.qty-row {
+  display: flex; align-items: center; gap: 8px;
+  padding-top: 12px;
+}
+.qty-presets { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+.qty-pre {
+  font-size: 14px; font-weight: 500;
+  padding: 7px 14px; border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--bg); color: var(--text);
+  cursor: pointer; transition: all 0.12s;
+  min-width: 44px; text-align: center;
+}
+.qty-pre.chosen {
+  background: var(--accent); color: #fff; border-color: var(--accent);
+}
+
+.qty-stepper {
+  display: flex; align-items: center; gap: 0;
+  border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden;
+  background: var(--surface); flex-shrink: 0;
+}
+.qty-btn {
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent; border: none; cursor: pointer;
+  font-size: 18px; color: var(--text); font-weight: 400;
+  transition: background 0.1s;
+}
+.qty-btn:active { background: var(--bg); }
+.qty-num {
+  min-width: 38px; text-align: center;
+  font-size: 16px; font-weight: 700; color: var(--text);
+  border: none; background: transparent; outline: none;
+  padding: 0; -moz-appearance: textfield;
+}
+.qty-num::-webkit-outer-spin-button,
+.qty-num::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+/* ── BOTTOM PANEL ── */
+.bottom-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 12px 16px;
+  z-index: 200;
+}
+.bottom-bar-inner { max-width: 720px; margin: 0 auto; display: flex; gap: 8px; align-items: center; }
+.order-summary {
+  display: flex; flex-direction: column; gap: 2px;
+  min-width: 60px;
+}
+.order-summary-count { font-size: 12px; color: var(--text2); }
+.order-summary-num { font-size: 16px; font-weight: 700; color: var(--text); }
+.btn-copy {
+  flex: 1; height: 50px;
+  font-size: 15px; font-weight: 700;
+  border-radius: 12px; border: none;
+  background: var(--accent); color: #fff;
+  cursor: pointer; transition: opacity 0.15s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.btn-copy:active { opacity: 0.8; }
+.btn-copy i { font-size: 18px; }
+.btn-reset {
+  width: 50px; height: 50px;
+  border-radius: 12px; border: 1.5px solid var(--border);
+  background: transparent; color: var(--text2);
+  cursor: pointer; font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.12s;
+}
+.btn-reset:active { background: var(--bg); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: calc(var(--bottom-h) + 12px); left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #222; color: #fff;
+  font-size: 13px; padding: 10px 20px;
+  border-radius: 20px; opacity: 0;
+  transition: all 0.25s; pointer-events: none;
+  white-space: nowrap; z-index: 300;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.empty-msg { font-size: 13px; color: var(--text3); padding: 24px 0; text-align: center; }
+
+@media (min-width: 520px) {
+  .content { padding: 16px 16px 0; }
+  .app-header { padding: 16px 16px 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-top">
+    <span class="app-title">아라유통 발주</span>
+  </div>
+  <div class="branch-wrap">
+    <i class="ti ti-building-store" aria-hidden="true"></i>
+    <input type="text" id="branch" placeholder="지점명 입력 (예: 삼삼마라 강남점)" autocomplete="off">
+  </div>
+  <div class="search-wrap">
+    <i class="ti ti-search" aria-hidden="true"></i>
+    <input type="text" id="search" placeholder="품목 검색..." autocomplete="off" oninput="onSearch(this)">
+    <i class="ti ti-x search-clear" id="search-clear" onclick="clearSearch()"></i>
+  </div>
+  <div class="cat-tabs" id="cat-tabs">
+    <button class="cat-tab active" onclick="filterCat('전체',this)">전체</button>
+    <button class="cat-tab" onclick="filterCat('채소',this)">채소</button>
+    <button class="cat-tab" onclick="filterCat('버섯',this)">버섯</button>
+    <button class="cat-tab" onclick="filterCat('냉동',this)">냉동</button>
+    <button class="cat-tab" onclick="filterCat('음료',this)">음료</button>
+    <button class="cat-tab" onclick="filterCat('기타',this)">기타</button>
+  </div>
+</div>
+
+<div class="content" id="content"></div>
+
+<div class="bottom-bar">
+  <div class="bottom-bar-inner">
+    <div class="order-summary">
+      <span class="order-summary-count">선택 품목</span>
+      <span class="order-summary-num" id="order-count">0개</span>
+    </div>
+    <button class="btn-copy" onclick="copyKakao()">
+      <i class="ti ti-copy" aria-hidden="true"></i>카카오톡 복사
+    </button>
+    <button class="btn-reset" onclick="resetAll()" title="초기화">
+      <i class="ti ti-refresh" aria-hidden="true"></i>
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast">복사되었습니다!</div>
+
+<script>
+const ITEMS = [
+  { name:'숙주', unit:'박스', cat:'채소' },
+  { name:'청경채특', unit:'박스/상', cat:'채소' },
+  { name:'알배기상', unit:'박스/특', cat:'채소' },
+  { name:'단배추', unit:'단', cat:'채소' },
+  { name:'고수', unit:'단', cat:'채소' },
+  { name:'쑥갓', unit:'단', cat:'채소' },
+  { name:'감자', unit:'박스/kg', cat:'채소' },
+  { name:'베이비', unit:'팩', cat:'채소' },
+  { name:'대팽이', unit:'박스', cat:'버섯' },
+  { name:'새송이중2k', unit:'봉/특', cat:'버섯' },
+  { name:'만가닥2k', unit:'봉/특', cat:'버섯' },
+  { name:'솔방울오징어', unit:'박스', cat:'냉동' },
+  { name:'21/25새우', unit:'박스', cat:'냉동' },
+  { name:'춘권', unit:'팩', cat:'냉동' },
+  { name:'냉동야채', unit:'봉', cat:'냉동' },
+  { name:'냉동다진마늘', unit:'개', cat:'냉동' },
+  { name:'탕소1500ml', unit:'박스', cat:'음료' },
+  { name:'탕중1800ml', unit:'박스', cat:'음료' },
+  { name:'탕대2100ml', unit:'박스', cat:'음료' },
+  { name:'코카콜라500ml', unit:'박스', cat:'음료' },
+  { name:'코카제로500ml', unit:'박스', cat:'음료' },
+  { name:'칠성사이다500ml', unit:'박스', cat:'음료' },
+  { name:'칠성사이다제로500ml', unit:'박스', cat:'음료' },
+  { name:'펩시제로500ml', unit:'박스', cat:'음료' },
+  { name:'환타파인500ml', unit:'박스', cat:'음료' },
+  { name:'아이시스', unit:'박스', cat:'음료' },
+  { name:'특란', unit:'판', cat:'기타' },
+  { name:'굴소스', unit:'팩', cat:'기타' },
+  { name:'건궁채', unit:'봉', cat:'기타' },
+  { name:'자숙연근', unit:'팩', cat:'기타' },
+  { name:'백설튀김가루', unit:'봉', cat:'기타' },
+  { name:'깐메추리알', unit:'봉', cat:'기타' },
+  { name:'옥수수콘소세지', unit:'개', cat:'기타' },
+  { name:'신미사각유부', unit:'봉', cat:'기타' },
+  { name:'새댁표고추기름3.4L', unit:'캔', cat:'기타' },
+  { name:'캡사이신액상', unit:'개', cat:'기타' },
+  { name:'휘핑', unit:'팩', cat:'기타' },
+  { name:'연유', unit:'개', cat:'기타' },
+  { name:'쌀', unit:'포', cat:'기타' },
+  { name:'감자전분', unit:'포', cat:'기타' },
+  { name:'농산수제비', unit:'봉', cat:'기타' },
+];
+
+const QTY_PRESETS = [1,2,3,5,10];
+let selected = {};
+let currentCat = '전체';
+
+function onSearch(el) {
+  document.getElementById('search-clear').style.display = el.value ? 'block' : 'none';
+  renderItems();
+}
+function clearSearch() {
+  document.getElementById('search').value = '';
+  document.getElementById('search-clear').style.display = 'none';
+  renderItems();
+}
+function filterCat(cat, btn) {
+  currentCat = cat;
+  document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderItems();
+}
+
+function renderItems() {
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const area = document.getElementById('content');
+  const cats = currentCat === '전체' ? ['채소','버섯','냉동','음료','기타'] : [currentCat];
+  let html = '';
+  cats.forEach(cat => {
+    const items = ITEMS.filter(i => i.cat === cat && (!q || i.name.toLowerCase().includes(q)));
+    if (!items.length) return;
+    html += `<div class="section"><div class="section-label">${cat}</div><div class="items-list">`;
+    items.forEach(item => {
+      const sel = selected[item.name];
+      const isSel = !!sel;
+      const qty = sel ? sel.qty : 1;
+      const safeName = item.name.replace(/'/g, "\\'");
+      html += `<div class="item-block${isSel?' selected':''}" id="block-${item.name}">
+        <div class="item-row" onclick="toggleItem('${safeName}','${item.unit}')">
+          <div class="item-check"><i class="ti ti-check"></i></div>
+          <div class="item-info">
+            <div class="item-name">${item.name}</div>
+            <div class="item-unit">${item.unit}</div>
+          </div>
+          <div class="item-qty-badge">${qty}</div>
+        </div>
+        <div class="qty-panel">
+          <div class="qty-row">
+            <div class="qty-presets">
+              ${QTY_PRESETS.map(n=>`<button class="qty-pre${isSel&&qty==n?' chosen':''}" onclick="setQty(event,'${safeName}',${n})">${n}</button>`).join('')}
+            </div>
+            <div class="qty-stepper">
+              <button class="qty-btn" onclick="stepQty(event,'${safeName}',-1)">−</button>
+              <input class="qty-num" type="number" min="1" value="${qty}" id="num-${item.name}" onchange="inputQty(event,'${safeName}')" onclick="event.stopPropagation()">
+              <button class="qty-btn" onclick="stepQty(event,'${safeName}',1)">+</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+  if (!html) html = `<p class="empty-msg">"${q}" 검색 결과가 없습니다.</p>`;
+  area.innerHTML = html;
+  updateCount();
+}
+
+function toggleItem(name, unit) {
+  if (selected[name]) {
+    delete selected[name];
+  } else {
+    selected[name] = { unit, qty: 1 };
+  }
+  renderItems();
+}
+
+function setQty(e, name, qty) {
+  e.stopPropagation();
+  if (selected[name]) { selected[name].qty = qty; }
+  const block = document.getElementById('block-' + name);
+  if (block) {
+    block.querySelectorAll('.qty-pre').forEach(b => {
+      b.classList.toggle('chosen', parseInt(b.textContent) === qty);
+    });
+    const badge = block.querySelector('.item-qty-badge');
+    if (badge) badge.textContent = qty;
+    const inp = document.getElementById('num-' + name);
+    if (inp) inp.value = qty;
+  }
+}
+
+function stepQty(e, name, delta) {
+  e.stopPropagation();
+  if (!selected[name]) return;
+  const cur = selected[name].qty || 1;
+  const next = Math.max(1, cur + delta);
+  selected[name].qty = next;
+  const block = document.getElementById('block-' + name);
+  if (block) {
+    block.querySelectorAll('.qty-pre').forEach(b => {
+      b.classList.toggle('chosen', parseInt(b.textContent) === next);
+    });
+    const badge = block.querySelector('.item-qty-badge');
+    if (badge) badge.textContent = next;
+    const inp = document.getElementById('num-' + name);
+    if (inp) inp.value = next;
+  }
+}
+
+function inputQty(e, name) {
+  e.stopPropagation();
+  const v = parseInt(e.target.value);
+  if (!isNaN(v) && v > 0 && selected[name]) {
+    selected[name].qty = v;
+    const block = document.getElementById('block-' + name);
+    if (block) {
+      block.querySelectorAll('.qty-pre').forEach(b => {
+        b.classList.toggle('chosen', parseInt(b.textContent) === v);
+      });
+      const badge = block.querySelector('.item-qty-badge');
+      if (badge) badge.textContent = v;
+    }
+  }
+}
+
+function updateCount() {
+  const n = Object.keys(selected).length;
+  document.getElementById('order-count').textContent = n + '개';
+}
+
+function resetAll() {
+  if (!Object.keys(selected).length) return;
+  if (!confirm('발주 목록을 초기화할까요?')) return;
+  selected = {};
+  renderItems();
+}
+
+function copyKakao() {
+  const keys = Object.keys(selected);
+  if (!keys.length) { alert('발주할 품목을 선택해주세요.'); return; }
+  const lines = keys.map(name => {
+    const {unit, qty} = selected[name];
+    return name + ' ' + qty + ' ' + unit;
+  });
+  const today = new Date();
+  const dateStr = today.getFullYear() + '년 ' + (today.getMonth()+1) + '월 ' + today.getDate() + '일';
+  const branch = document.getElementById('branch').value.trim();
+  const header = (branch ? branch + '\n' : '') + dateStr + ' 발주 내역';
+  const msg = header + '\n' + lines.join('\n');
+  navigator.clipboard.writeText(msg).then(showToast).catch(() => {
+    prompt('아래 메시지를 복사하세요:', msg);
+  });
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+renderItems();
+</script>
+</body>
+</html>
