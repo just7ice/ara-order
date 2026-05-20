@@ -20,11 +20,12 @@
   --bottom-h: 76px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; }
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
   background: var(--bg); color: var(--text);
-  padding-bottom: calc(var(--bottom-h) + 48px);
+  min-height: 100vh;
+  padding-bottom: calc(var(--bottom-h) + 80px);
 }
 
 /* ── HEADER ── */
