@@ -294,6 +294,22 @@ body {
   .content { padding: 16px 16px 0; }
   .app-header { padding: 16px 16px 0; }
 }
+
+/* ── THURSDAY BANNER ── */
+.thu-banner {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: #fff8e1; border: 1.5px solid #ffc107;
+  border-radius: 10px; padding: 11px 14px;
+  margin: 0 0 12px;
+}
+.thu-banner i { font-size: 20px; color: #f59f00; flex-shrink: 0; margin-top: 1px; }
+.thu-banner-text { flex: 1; }
+.thu-banner-title { font-size: 13px; font-weight: 700; color: #7c5b00; margin-bottom: 3px; }
+.thu-banner-body { font-size: 12px; color: #9a7000; line-height: 1.5; }
+.thu-banner-close {
+  font-size: 16px; color: #cfa800; cursor: pointer;
+  flex-shrink: 0; padding: 0 0 0 4px;
+}
 </style>
 </head>
 <body>
@@ -305,6 +321,16 @@ body {
   <div class="branch-wrap">
     <i class="ti ti-building-store" aria-hidden="true"></i>
     <input type="text" id="branch" placeholder="지점명 입력 (예: 삼삼마라 강남점)" autocomplete="off">
+  </div>
+  <div id="thu-banner" class="thu-banner" style="display:none">
+    <i class="ti ti-bell-ringing" aria-hidden="true"></i>
+    <div class="thu-banner-text">
+      <div class="thu-banner-title">오늘 탕류 발주 마감일이에요!</div>
+      <div class="thu-banner-body">탕소 1500ml · 탕중 1800ml · 탕대 2100ml<br>금요일부터 발주가 불가하니 오늘 꼭 주문해 주세요.</div>
+    </div>
+    <span class="thu-banner-close" onclick="document.getElementById('thu-banner').style.display='none'">
+      <i class="ti ti-x"></i>
+    </span>
   </div>
   <div class="search-wrap">
     <i class="ti ti-search" aria-hidden="true"></i>
@@ -405,6 +431,9 @@ let currentCat = '전체';
 function onSearch(el) {
   document.getElementById('search-clear').style.display = el.value ? 'block' : 'none';
   renderItems();
+if (new Date().getDay() === 4) {
+  document.getElementById('thu-banner').style.display = 'flex';
+}
 }
 function clearSearch() {
   document.getElementById('search').value = '';
